@@ -1,0 +1,22 @@
+{
+    "name": "asharif88/kobo-sdk",
+    "description": "A PHP SDK to easily work with KoboToolbox API",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ahmad Sharif",
+            "email": "asharif88@proton.me"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "8.3.*",
+        "guzzlehttp/guzzle": "^7.4.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "KoboToolbox\\SDK\\": "src/"
+        }
+    }
+}
