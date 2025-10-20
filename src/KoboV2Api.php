@@ -11,11 +11,29 @@ use Psr\Http\Message\RequestInterface;
 
 final class KoboV2Api implements KoboSDKInterface
 {
+    public array $metadataFields = [
+        'formhub/uuid',
+        'meta/instanceID',
+        'meta/rootUuid',
+        '_id',
+        '__version__',
+        '_xform_id_string',
+        '_uuid',
+        '_attachments',
+        '_status',
+        '_geolocation',
+        '_submission_time',
+        '_tags',
+        '_notes',
+        '_validation_status',
+        '_submitted_by',
+    ];
+
     public function __construct(
-        private ClientInterface $httpClient,
-        private RequestFactoryInterface $requestFactory,
-        private string $apiUrl,
-        private string $apiKey
+        private readonly ClientInterface $httpClient,
+        private readonly RequestFactoryInterface $requestFactory,
+        private readonly string $apiUrl,
+        private readonly string $apiKey
     ) {}
 
     public function getAssets(): array
@@ -27,10 +45,37 @@ final class KoboV2Api implements KoboSDKInterface
         return $this->sendRequest($request);
     }
 
+    public function asset(string $formId): array
+    {
+        $request = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/' . $formId . '/')
+            ->withHeader('Authorization', 'Token ' . $this->apiKey)
+            ->withHeader('Accept', 'application/json');
+
+        return $this->sendRequest($request);
+    }
+
     public function getSubmissions(string $formId, array $filters = []): array
     {
-        // TODO: Implement getSubmissions() method.
+        $queryArray = Utils::formatRequestQuery($filters);
+        $request    = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/' . $formId . '/data/')
+            ->withHeader('Authorization', 'Token ' . $this->apiKey)
+            ->withHeader('Accept', 'application/json');
 
+        $uri     = $request->getUri();
+        $newUri  = $uri->withQuery(http_build_query($queryArray));
+        $request = $request->withUri($newUri);
+        // dump($request->getUri());
+
+        return $this->sendRequest($request);
+    }
+
+    public function submission(string $formId, string $submissionId): array
+    {
+        $request = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/' . $formId . '/data/' . $submissionId . '/')
+            ->withHeader('Authorization', 'Token ' . $this->apiKey)
+            ->withHeader('Accept', 'application/json');
+
+        return $this->sendRequest($request);
     }
 
     private function sendRequest(RequestInterface $request): array
@@ -45,15 +90,4 @@ final class KoboV2Api implements KoboSDKInterface
 
         return ResponseHandler::handle($response);
     }
-    //            $url .= '?' . $qs;
-    //        }
-    //
-    //        $request = $this->requestFactory->createRequest('GET', $url);
-    //        $request = $request->withHeader('Authorization', 'Token ' . $this->apiKey);
-    //        $request = $request->withHeader('Accept', 'application/json');
-    //
-    //        $response = $this->httpClient->sendRequest($request);
-    //
-    //        return ResponseHandler::handle($response, $expectedStatusCodes);
-    //    }
 }

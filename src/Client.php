@@ -55,6 +55,26 @@ class Client
         return $this->koboSDK->getAssets();
     }
 
+    public function asset(string $formId): array
+    {
+        return $this->koboSDK->asset($formId);
+    }
+
+    public function assetPermissions(string $formId): array
+    {
+        return $this->koboSDK->assetPermissions($formId);
+    }
+
+    public function getSubmissions(string $formId, array $filters = []): array
+    {
+        return $this->koboSDK->getSubmissions($formId, $filters);
+    }
+
+    public function submission(string $formId, string $submissionId): array
+    {
+        return $this->koboSDK->submission($formId, $submissionId);
+    }
+
     public function listAssets()
     {
         $url = $this->apiUrl . '/api/' . $this->apiVersion . '/assets/';
