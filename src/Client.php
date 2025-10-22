@@ -50,14 +50,19 @@ class Client
         };
     }
 
-    public function getAssets(): array
+    public function getAssets(int $limit = 100, int $offset = 0, string $asset_type = 'survey'): array
     {
-        return $this->koboSDK->getAssets();
+        return $this->koboSDK->getAssets($limit, $offset, $asset_type);
     }
 
-    public function asset(string $formId): array
+    public function asset(string $formId): Asset
     {
         return $this->koboSDK->asset($formId);
+    }
+
+    public function assetContent(string $formId): array
+    {
+        return $this->koboSDK->assetContent($formId);
     }
 
     public function assetPermissions(string $formId): array
@@ -75,22 +80,18 @@ class Client
         return $this->koboSDK->submission($formId, $submissionId);
     }
 
-    public function listAssets()
+    public function getEditLink(string $formId, string $submissionId): array
     {
-        $url = $this->apiUrl . '/api/' . $this->apiVersion . '/assets/';
+        return $this->koboSDK->getEditLink($formId, $submissionId);
+    }
 
-        $request = $this->requestFactory->createRequest('GET', $url)
-            ->withHeader('Authorization', 'Token ' . $this->apiKey)
-            ->withHeader('Accept', 'application/json');
+    public function getSubmissionAttachments(string $formId, string $submissionId): array
+    {
+        return $this->koboSDK->getSubmissionAttachments($formId, $submissionId);
+    }
 
-        $response = $this->httpClient->sendRequest($request);
-
-        if ($response->getStatusCode() !== 200) {
-            throw new \RuntimeException('Failed to fetch assets: ' . $response->getStatusCode());
-        }
-
-        $body = (string) $response->getBody();
-
-        return json_decode($body, true);
+    public function getAttachment(string $formId, string $submissionId, string $attachmentId): mixed
+    {
+        return $this->koboSDK->getAttachment($formId, $submissionId, $attachmentId);
     }
 }

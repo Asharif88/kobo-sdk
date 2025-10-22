@@ -9,7 +9,10 @@ final class Utils
 {
     public static function formatDateFilter(?DateTimeImmutable $start = null, ?DateTimeImmutable $end = null): array
     {
-        // {"_submission_time":{"$gte":"2023-06-01T00:00:00+00:00","$lte":"2023-06-30T23:59:59+00:00"}}
+        if ($start === null && $end === null) {
+            throw new \InvalidArgumentException('Start and end date must not be empty');
+        }
+
         if ($start !== null) {
             $startStr          = $start->format(DateTimeInterface::ATOM);
             $dateQuery['$gte'] = $startStr;
@@ -22,7 +25,16 @@ final class Utils
         return ['_submission_time' => $dateQuery];
     }
 
-    public static function formatRequestQuery(array $filters = []): array
+    public static function formatAssetRequestQuery(int $limit = 100, int $offset = 0, string $asset_type = 'survey'): array
+    {
+        return [
+            'limit'  => $limit,
+            'offset' => $offset,
+            'q'      => 'asset_type:' . $asset_type,
+        ];
+    }
+
+    public static function formatSubmissionRequestQuery(array $filters = []): array
     {
         $queryArray = [];
 
@@ -41,5 +53,22 @@ final class Utils
         }
 
         return $queryArray;
+    }
+
+    public static function formatPermissions(array $permissions): array
+    {
+        $formattedPermissions = [];
+
+        foreach ($permissions as $permission) {
+            $user     = explode('/', $permission['user']);
+            $username = array_slice($user, -2, 1)[0];
+
+            $permission = explode('/', $permission['permission']);
+            $permission = array_slice($permission, -2, 1)[0];
+
+            $formattedPermissions[$username][] = $permission;
+        }
+
+        return $formattedPermissions;
     }
 }

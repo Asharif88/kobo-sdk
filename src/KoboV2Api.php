@@ -36,18 +36,38 @@ final class KoboV2Api implements KoboSDKInterface
         private readonly string $apiKey
     ) {}
 
-    public function getAssets(): array
+    public function getAssets(int $limit = 100, int $offset = 0, string $asset_type = 'survey'): array
     {
+        // Limiting to surveys by default, might add other asset types later if requested
         $request = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/')
             ->withHeader('Authorization', 'Token ' . $this->apiKey)
             ->withHeader('Accept', 'application/json');
 
+        $queryArray = Utils::formatAssetRequestQuery(limit: $limit, offset: $offset, asset_type: $asset_type);
+        $uri        = $request->getUri();
+        $newUri     = $uri->withQuery(http_build_query($queryArray));
+        $request    = $request->withUri($newUri);
+
         return $this->sendRequest($request);
     }
 
-    public function asset(string $formId): array
+    public function asset(string $formId): Asset
     {
         $request = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/' . $formId . '/')
+            ->withHeader('Authorization', 'Token ' . $this->apiKey)
+            ->withHeader('Accept', 'application/json');
+
+        $response = $this->sendRequest($request);
+
+        return new Asset(
+            formId: $formId,
+            data: $response,
+        );
+    }
+
+    public function assetContent(string $formId): array
+    {
+        $request = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/' . $formId . '/content/')
             ->withHeader('Authorization', 'Token ' . $this->apiKey)
             ->withHeader('Accept', 'application/json');
 
@@ -56,7 +76,7 @@ final class KoboV2Api implements KoboSDKInterface
 
     public function getSubmissions(string $formId, array $filters = []): array
     {
-        $queryArray = Utils::formatRequestQuery($filters);
+        $queryArray = Utils::formatSubmissionRequestQuery($filters);
         $request    = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/' . $formId . '/data/')
             ->withHeader('Authorization', 'Token ' . $this->apiKey)
             ->withHeader('Accept', 'application/json');
@@ -64,7 +84,6 @@ final class KoboV2Api implements KoboSDKInterface
         $uri     = $request->getUri();
         $newUri  = $uri->withQuery(http_build_query($queryArray));
         $request = $request->withUri($newUri);
-        // dump($request->getUri());
 
         return $this->sendRequest($request);
     }
@@ -72,6 +91,15 @@ final class KoboV2Api implements KoboSDKInterface
     public function submission(string $formId, string $submissionId): array
     {
         $request = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/' . $formId . '/data/' . $submissionId . '/')
+            ->withHeader('Authorization', 'Token ' . $this->apiKey)
+            ->withHeader('Accept', 'application/json');
+
+        return $this->sendRequest($request);
+    }
+
+    public function getEditLink(string $formId, string $submissionId): array
+    {
+        $request = $this->requestFactory->createRequest('GET', $this->apiUrl . '/api/v2/assets/' . $formId . '/data/' . $submissionId . '/enketo/edit/')
             ->withHeader('Authorization', 'Token ' . $this->apiKey)
             ->withHeader('Accept', 'application/json');
 
