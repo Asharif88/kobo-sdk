@@ -55,6 +55,32 @@ final class Utils
         return $queryArray;
     }
 
+    public static function arrayToXml(array $data, \SimpleXMLElement &$xmlData): void
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if (is_numeric($key)) {
+                    $key = 'item' . $key; // dealing with <0/>..<n/> issues
+                }
+                $subnode = $xmlData->addChild($key);
+                self::arrayToXml($value, $subnode);
+            } else {
+                if (is_numeric($key)) {
+                    $key = 'item' . $key; // dealing with <0/>..<n/> issues
+                }
+                $xmlData->addChild($key, htmlspecialchars((string) $value));
+            }
+        }
+    }
+
+    public static function createTempXmlFile(string $xmlContent): string
+    {
+        $tempFile = tempnam(sys_get_temp_dir(), 'kobo_submission_') . '.xml';
+        file_put_contents($tempFile, $xmlContent);
+
+        return $tempFile;
+    }
+
     public static function formatPermissions(array $permissions): array
     {
         $formattedPermissions = [];

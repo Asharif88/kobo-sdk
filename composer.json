@@ -16,17 +16,30 @@
         "php-http/discovery": "^1.20.0",
         "psr/http-client": "^1.0.3",
         "psr/http-client-implementation": "^1.0.1",
-        "psr/http-factory-implementation": "*"
+        "psr/http-factory-implementation": "*",
+        "ramsey/uuid": "^4.9.1",
+        "ext-simplexml": "*",
+        "guzzlehttp/psr7": "^2.8.0"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "^7.4.5",
         "laravel/pint": "^1.25",
-        "symfony/var-dumper": "^7.2.6"
+        "symfony/var-dumper": "^7.2.6",
+        "mockery/mockery": "2.0.x-dev",
+        "phpunit/phpunit": "12.5.x-dev"
     },
     "autoload": {
         "psr-4": {
             "KoboSDK\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "KoboSDK\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
     },
     "config": {
         "allow-plugins": {

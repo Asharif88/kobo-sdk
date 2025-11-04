@@ -23,6 +23,31 @@ final class ResponseHandler
         return self::parseJson($response);
     }
 
+    /**
+     * Validate response status and return raw response content and metadata.
+     * Useful for binary payloads like images or attachments.
+     *
+     * @param  int[]  $expectedStatusCodes
+     *
+     * @throws UnauthorizedException
+     * @throws HttpException
+     */
+    public static function handleAttachment(ResponseInterface $response, array $expectedStatusCodes = [200]): array
+    {
+        self::ensureStatus($response, $expectedStatusCodes);
+
+        $body        = $response->getBody();
+        $headers     = method_exists($response, 'getHeaders') ? $response->getHeaders() : [];
+        $contentType = $response->getHeaderLine('Content-Type');
+
+        return [
+            'content'      => $body,
+            'headers'      => $headers,
+            'content_type' => $contentType === '' ? null : $contentType,
+            'status'       => $response->getStatusCode(),
+        ];
+    }
+
     private static function ensureStatus(ResponseInterface $response, array $expectedStatusCodes): void
     {
         $status = $response->getStatusCode();
