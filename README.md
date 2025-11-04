@@ -1,4 +1,4 @@
-# Kobo SDK — PHP client for KoboToolbox-style APIs
+# Kobo SDK — PHP client for KoboToolbox APIs
 
 [![PHP](https://img.shields.io/badge/php-8.3-blue.svg)](https://www.php.net/) [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
